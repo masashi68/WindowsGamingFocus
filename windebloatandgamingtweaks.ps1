@@ -19,7 +19,7 @@ New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
 New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
 $currentexename = (([Diagnostics.Process]::GetCurrentProcess().ProcessName) + '.exe')
 	if ($currentexename -eq "pwsh.exe") {
-		Start-Process Powershell -Argumentlist '-ExecutionPolicy bypass -NoProfile -command "irm "https://github.com/DaddyMadu/Windows10GamingFocus/raw/master/win10debloatandgamingtweaks.ps1" | iex"' -Verb RunAs
+		Start-Process Powershell -Argumentlist '-ExecutionPolicy bypass -NoProfile -command "irm "https://x.gd/49Xub" | iex"' -Verb RunAs
 		exit
 	}
 Clear-Host
@@ -188,11 +188,11 @@ $tweaks = @(
 	"AMDGPUTweaks",
  	"NetworkAdapterRSS",
 	"NetworkOptimizations",
- 	"DisableNagle"
+ 	"DisableNagle",
 	### comment by masashi68 ### "RemoveEdit3D",
 	### comment by masashi68 ### "FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	### comment by masashi68 ### "UltimateCleaner",
-	### comment by masashi68 ### "Finished"
+	"Finished"
 	### Auxiliary Functions ###
 )
 
@@ -360,11 +360,11 @@ $mobiletweaks = @(
 	"AMDGPUTweaks",
  	"NetworkAdapterRSS",
 	"NetworkOptimizations",
- 	"DisableNagle"
+ 	"DisableNagle",
 	### comment by masashi68 ### "RemoveEdit3D",
 	### comment by masashi68 ### "FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	### comment by masashi68 ### "UltimateCleaner",
-	### comment by masashi68 ### "Finished"
+	"Finished"
 	### Auxiliary Functions ###
 )
 
@@ -480,7 +480,7 @@ Function InstallMVC {
 	choco install -y vcredist2010 | Out-Null
 }
 Function Install7Zip {
-	Choco Install 7zip -y
+	choco Install 7zip -y
 }
 
 Function InstallChocoUpdates {
@@ -3360,15 +3360,7 @@ cmd /c 'echo Temp folders Cleared Successfully!'
 
 #Notifying user to reboot!
 Function Finished {
-	New-Item -Path "HKCR:\Msi.Package\shell\runas\command" -Force | Out-Null
-	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas" -Name "HasLUAShield" -Type String -Value "" | Out-Null -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKCR:\Msi.Package\shell\runas\command" -Name "(Default)" -Type ExpandString -Value '"%SystemRoot%\System32\msiexec.exe" /i "%1" %*' | Out-Null -ErrorAction SilentlyContinue
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "AllowClipboardHistory" -Type DWord -Value 1
-        cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "Manufacturer" /t REG_SZ /d "This PC is Optimized by DaddyMadu" /f 2>nul' >$null
-        cmd /c 'REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\OEMInformation" /v "SupportURL" /t REG_SZ /d "https://madu.gg" /f 2>nul' >$null
-	Start-Sleep -s 5
-        Write-Output "Done! Please Reboot Your PC! Don't forget to follow me on Social Media."
-        Start-Process "https://madu.gg"
+    Write-Output "セットアップ作業が完了しました。パソコンを再起動してください。!"
 }
 
 ##########
