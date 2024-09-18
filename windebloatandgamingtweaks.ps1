@@ -188,7 +188,7 @@ $tweaks = @(
 	"AMDGPUTweaks",
  	"NetworkAdapterRSS",
 	"NetworkOptimizations",
- 	"DisableNagle",
+ 	"DisableNagle"
 	### comment by masashi68 ### "RemoveEdit3D",
 	### comment by masashi68 ### "FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	### comment by masashi68 ### "UltimateCleaner",
@@ -360,7 +360,7 @@ $mobiletweaks = @(
 	"AMDGPUTweaks",
  	"NetworkAdapterRSS",
 	"NetworkOptimizations",
- 	"DisableNagle",
+ 	"DisableNagle"
 	### comment by masashi68 ### "RemoveEdit3D",
 	### comment by masashi68 ### "FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	### comment by masashi68 ### "UltimateCleaner",
