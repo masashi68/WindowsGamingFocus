@@ -3360,7 +3360,8 @@ cmd /c 'echo Temp folders Cleared Successfully!'
 
 #Notifying user to reboot!
 Function Finished {
-    Write-Output "セットアップ作業が完了しました。パソコンを再起動してください。!"
+	Write-Output "Finished!!!  Restarting..."
+	Restart-Computer
 }
 
 ##########
