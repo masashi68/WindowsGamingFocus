@@ -1,10 +1,10 @@
 ##########
-# Master Branch : https://github.com/ChrisTitusTech/win10script
+# Master Branch : https://github.com/DaddyMadu/Windows10GamingFocus
 # Current Author : masashi68
 # Current Author Source: https://github.com/masashi68/WindowsGamingFocus
 #
 #
-#     > powershell -nop -c "iex(New-Object Net.WebClient).DownloadString('http://madu.gg/ps')"
+#     > powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')"
 #
 #
 #  
@@ -28,7 +28,6 @@ $tweaks = @(
 	### Require administrator privileges ###
 	"RequireAdmin",
 	"CreateRestorePoint",
-	
 	### Chris Titus Tech Additions
 	"SlowUpdatesTweaks",
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
@@ -43,6 +42,7 @@ $tweaks = @(
 	### comment by masashi68 ### "DorEOneDrive",                  #Option to Install Or Uninstall Microsoft One Drive!
 	### comment by masashi68 ### "askXBOX",
 	### comment by masashi68 ### "Windows11Extra",
+	"AdwCleaner", ### added by masashi68 ###
 	### Windows Apps
 	### comment by masashi68 ### "DebloatAll",
 	### Privacy Tweaks ###
@@ -215,6 +215,7 @@ $mobiletweaks = @(
 	### comment by masashi68 ### "DorEOneDrive",                  #Option to Install Or Uninstall Microsoft One Drive!
 	### comment by masashi68 ### "askXBOX",
 	### comment by masashi68 ### "Windows11Extra",
+	"AdwCleaner", ### added by masashi68 ###
 	### Windows Apps
 	### comment by masashi68 ### "DebloatAll",
 	### Privacy Tweaks ###
@@ -3517,6 +3518,13 @@ Clear-Host
     }
 }
 
+function AdwCleaner {
+		Import-Module BitsTransfer
+		Start-BitsTransfer -Source "https://downloads.malwarebytes.com/file/adwcleaner" -Destination adwcleaner.exe
+		./adwcleaner.exe /eula /clean /noreboot
+		Start-Sleep -Second 10
+		remove-item adwcleaner.exe -force -Recurse -ErrorAction SilentlyContinue
+}
 ##########
 # Parse parameters and apply tweaks
 ##########
