@@ -100,6 +100,7 @@ $tweaks = @(
 	"DisableSleepTimeout",        # "EnableSleepTimeout",
 	"DisableFastStartup",         # "EnableFastStartup",
 	"DISGaming",
+	"DisableIndexing",
     ### Windows Tweaks ###
 	"PowerThrottlingOff",
 	"Win32PrioritySeparation",
@@ -273,6 +274,7 @@ $mobiletweaks = @(
 	"DisableSleepTimeout",        # "EnableSleepTimeout",
 	"DisableFastStartup",         # "EnableFastStartup",
 	"DISGaming",
+	"DisableIndexing",
     ### Windows Tweaks ###
 	"PowerThrottlingOff",
 	"Win32PrioritySeparation",
