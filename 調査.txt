@@ -59,3 +59,4 @@ DisableCloudSearch			・スタートメニューのクラウド検索の無効�
 DisableDeviceHistory		・スタートメニューのデバイス履歴の無効化
 DisableSearchHistroy		・スタートメニューの検索履歴の無効化
 RemoveMeet					・[今すく会議]アイコンの削除
+NoLockScreen				・ロック画面を挟まず、すぐにパスワード画面を表示

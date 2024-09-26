@@ -119,7 +119,7 @@ $tweaks = @(
 	"DisableSearchHistroy",
 	"RemoveMeet",
 	### UI Tweaks ###
-	"EnableActionCenter",          # "DisableActionCenter",
+	### comment by masashi68 ### "EnableActionCenter",          # "DisableActionCenter",
 	"EnableLockScreen",				# "DisableLockScreen",
 	"EnableLockScreenRS1",			# "DisableLockScreenRS1",
 	# "HideNetworkFromLockScreen",    # "ShowNetworkOnLockScreen",
@@ -295,7 +295,7 @@ $mobiletweaks = @(
 	"DisableSearchHistroy",
 	"RemoveMeet",
 	### UI Tweaks ###
-	"EnableActionCenter",          # "DisableActionCenter",
+	### comment by masashi68 ### "EnableActionCenter",          # "DisableActionCenter",
 	"EnableLockScreen",				# "DisableLockScreen",
 	"EnableLockScreenRS1",			# "DisableLockScreenRS1",
 	# "HideNetworkFromLockScreen",    # "ShowNetworkOnLockScreen",
