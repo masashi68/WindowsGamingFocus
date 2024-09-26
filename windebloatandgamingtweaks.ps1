@@ -52,7 +52,7 @@ $tweaks = @(
 	"DisableWebSearch",             # "EnableWebSearch",
 	"DisableAppSuggestions",        # "EnableAppSuggestions",
 	"DisableActivityHistory",       # "EnableActivityHistory",
-	"EnableBackgroundApps",           #"DisableBackgroundApps",
+	### comment by masashi68 ### "EnableBackgroundApps",           #"DisableBackgroundApps",
 	"DisableLocationTracking",      # "EnableLocationTracking",
 	"DisableMapUpdates",            # "EnableMapUpdates",
 	"DisableFeedback",              # "EnableFeedback",
@@ -68,7 +68,7 @@ $tweaks = @(
 	"SetUACLow",                  # "SetUACHigh",
 	# "EnableSharingMappedDrives",  # "DisableSharingMappedDrives",
 	# "DisableAdminShares",           # "EnableAdminShares",
-	"DisableSMB1",                # "EnableSMB1",
+	### comment by masashi68 ### "DisableSMB1",                # "EnableSMB1",
 	# "DisableSMBServer",           # "EnableSMBServer",
 	# "DisableLLMNR",               # "EnableLLMNR",
 	"SetCurrentNetworkPrivate",     # "SetCurrentNetworkPublic",
@@ -79,7 +79,7 @@ $tweaks = @(
 	# "EnableCIMemoryIntegrity",    # "DisableCIMemoryIntegrity",
 	#"DisableScriptHost",            # "EnableScriptHost",
 	#"EnableDotNetStrongCrypto",     # "DisableDotNetStrongCrypto",
-	"DisableMeltdownCompatFlag", # "EnableMeltdownCompatFlag"    
+	### comment by masashi68 ### "DisableMeltdownCompatFlag", # "EnableMeltdownCompatFlag"    
 	### Service Tweaks ###
 	"EnableUpdateMSRT",          # "EnableUpdateMSRT",    #"DisableUpdateMSRT",
 	"EnableUpdateDriver",        # "EnableUpdateDriver",  #"DisableUpdateDriver",
@@ -193,6 +193,7 @@ $tweaks = @(
 	### comment by masashi68 ### "RemoveEdit3D",
 	### comment by masashi68 ### "FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	### comment by masashi68 ### "UltimateCleaner",
+	"SetUACHigh", ### added by masashi68 ###
 	"Finished"
 	### Auxiliary Functions ###
 )
@@ -226,7 +227,7 @@ $mobiletweaks = @(
 	"DisableWebSearch",             # "EnableWebSearch",
 	"DisableAppSuggestions",        # "EnableAppSuggestions",
 	"DisableActivityHistory",       # "EnableActivityHistory",
-	"EnableBackgroundApps",           #"DisableBackgroundApps",
+	### comment by masashi68 ### "EnableBackgroundApps",           #"DisableBackgroundApps",
 	"DisableLocationTracking",      # "EnableLocationTracking",
 	"DisableMapUpdates",            # "EnableMapUpdates",
 	"DisableFeedback",              # "EnableFeedback",
@@ -242,7 +243,7 @@ $mobiletweaks = @(
 	"SetUACLow",                  # "SetUACHigh",
 	# "EnableSharingMappedDrives",  # "DisableSharingMappedDrives",
 	# "DisableAdminShares",           # "EnableAdminShares",
-	"DisableSMB1",                # "EnableSMB1",
+	### comment by masashi68 ### "DisableSMB1",                # "EnableSMB1",
 	# "DisableSMBServer",           # "EnableSMBServer",
 	# "DisableLLMNR",               # "EnableLLMNR",
 	"SetCurrentNetworkPrivate",     # "SetCurrentNetworkPublic",
@@ -253,7 +254,7 @@ $mobiletweaks = @(
 	# "EnableCIMemoryIntegrity",    # "DisableCIMemoryIntegrity",
 	#"DisableScriptHost",            # "EnableScriptHost",
 	#"EnableDotNetStrongCrypto",     # "DisableDotNetStrongCrypto",
-	"DisableMeltdownCompatFlag", # "EnableMeltdownCompatFlag"    
+	### comment by masashi68 ### "DisableMeltdownCompatFlag", # "EnableMeltdownCompatFlag"    
 	### Service Tweaks ###
 	"EnableUpdateMSRT",          # "EnableUpdateMSRT",    #"DisableUpdateMSRT",
 	"EnableUpdateDriver",        # "EnableUpdateDriver",  #"DisableUpdateDriver",
@@ -367,6 +368,7 @@ $mobiletweaks = @(
 	### comment by masashi68 ### "RemoveEdit3D",
 	### comment by masashi68 ### "FixURLext",  # fix issue with games shortcut that created by games lunchers turned white!
 	### comment by masashi68 ### "UltimateCleaner",
+	"SetUACHigh", ### added by masashi68 ###
 	"Finished"
 	### Auxiliary Functions ###
 )
