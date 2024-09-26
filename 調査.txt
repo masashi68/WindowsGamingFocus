@@ -1,0 +1,61 @@
+CreateRestorePoint     		・復元ポイントの作成
+SlowUpdatesTweaks      		・Windows Update 延期(機能更新プログラム 30日 品質更新プログラム 4日)
+InstallTitusProgs      		・Chocolatey(パッケージマネージャー)のインストール/フリーウェア[O&O ShutUp10++]を使ったテレメトリ(診断データ収集)の無効化設定
+InstallMVC             		・Microsoft Visual C++ 2010 Service Pack 1のインストール（HPET サービスのため）
+InstallEverything			・Everything(全ファイル検索ツール)のインストール
+Install7Zip            		・7zip(圧縮解凍ソフト)のインストール
+InstallChocoUpdates    		・Chocolatey(パッケージマネージャー)のアップデート
+EnableUlimatePower	   		・Bitsum Highest Performance(高パフォーマンス電源プラン)のインストールと適応
+MSIMode				   		・グラフィックカードがある場合MSISupportedを1にする(オーディオ、グラフィックパフォーマンス向上)
+AdwCleaner			   		・AdwCleanerを使ったアドウェアやスパイウェア、不要なレジストリの削除
+DisableTelemetry	   		・テレメトリ(診断データ収集)の無効化
+DisableWiFiSense	   		・WiFiなしの場合、Wi-Fi Senseサービスの無効化
+DisableSmartScreen 	   		・Windows Defender SmartScreenの無効化
+DisableWebSearch	   		・スタートメニューのBing検索の無効化
+DisableAppSuggestions  		・Windowsのコンテンツ配信とサジェスト機能からのインストール無効化(Candy Crush Soda Saga等不要アプリ)
+DisableActivityHistory 		・ユーザーの行動を記録する「タイムライン」とその公開、アップロードの無効化
+DisableLocationTracking		・ロケーションサービスの無効化
+DisableMapUpdates      		・ダウンロード地図マネージャーによる自動更新の無効化
+DisableFeedback        		・フィードバック(機能やサービスの評価を求めるWindowsからのアンケート)を無効化
+DisableTailoredExperiences	・エクスペリエンス調整のために診断データを使用しない
+DisableAdvertisingID		・広告IDの無効化
+DisableCortana				・Cortana(音声アシスタント)の無効化
+DisableErrorReporting		・エラー発生時にマイクロソフトへの送信を無効化
+SetP2PUpdateLocal			・Windows Updateの効率化(同一LAN内にキャッシュがあれば取得)
+DisableDiagTrack			・DiagTrack(Diagnostics Tracking Service)サービスの無効化(エラー時のユーザー操作の記録)
+DisableWAPPush				・dmwappushservice(デバイス管理ワイヤレス アプリケーション プロトコル (WAP))サービスの無効化
+DisableNewsFeed				・Windowsのニュースフィードの停止
+SetCurrentNetworkPrivate	・ネットワークの設定をプライベートに設定
+SetUnknownNetworksPrivate	・識別されていないネットワークを場所の種類をプライベートに設定
+DisableNetDevicesAutoInst	・ネットワークに接続されているデバイスの自動セットアップの無効化
+EnableF8BootMenu			・起動時にF8でブートメニューを出せるようにする
+EnableUpdateMSRT			・悪意のあるソフトウェアの削除ツールの有効化
+EnableUpdateDriver			・Windows Updateでのドライバー更新の有効化
+DisableUpdateRestart		・Windows Updateによる自動再起動の無効化
+EnableSharedExperiences		・近距離共有(近くのBluetooth機器とのファイルの交換)の有効化
+DisableAutoplay				・メディア挿入時の自動再生の無効化
+DisableAutorun				・全ドライブでの自動実行の無効化
+DisableStorageSense			・ストレージセンサー(ファイルの自動削除機能)の無効化
+DisableDefragmentation		・自動デフラグのスケジュール停止
+DisableSuperfetch			・スーパーフェッチ機能(キャッシュメモリー管理機能(パフォーマンス低下の原因にとなる事例多し))の無効化
+EnableIndexing				・WSearchサービス
+SetBIOSTimeUTC				・UTC時刻に変更(その際のサーバーをtime.asia.apple.comに変更)
+DisableHibernation			・ハイバネーション(開いたアプリ等の復元)の無効化
+DisableFastStartup			・ハイバーネーションによる高速スタートアップの無効化
+EnableSleepButton			・スリープの有効化
+DisableSleepTimeout			・スリープモードのタイムアウトの無効化
+DISGaming					・ゲームに不要なサービス無効化　※wisvc(Windows Insider)、MapsBroker(ダウンロード地図マネージャー)、TrkWks(分散リンクトラッキングクライアン)、PcaSvc(プログラム互換性アシスタント)
+DisableIndexing				・インデクシングサービスの無効化
+PowerThrottlingOff			・電源調整によるCPU制御の無効化
+Win32PrioritySeparation		・Win32PrioritySeparationの値を0x28(dec 40)にし、遅延を最小化
+DisableAERO					・Windows Aeroの無効化
+BSODdetails					・ブルースクリーン画面で、Stop エラー情報を表示をする
+Disablelivetiles			・ライブタイル(スタート画面でニュースや天気、メールをタイル表示)の無効化
+wallpaperquality			・壁紙のJpegのクオリティを100%に設定
+DisableShistory				・スタートメニューのWeb検索機能および履歴の無効化
+DisableMouseKKS				・マウスキー（キーボードのテンキーによるマウス操作）の無効化
+DisableTransparency			・Windowsの表示に透明性を適用しない
+DisableCloudSearch			・スタートメニューのクラウド検索の無効化
+DisableDeviceHistory		・スタートメニューのデバイス履歴の無効化
+DisableSearchHistroy		・スタートメニューの検索履歴の無効化
+RemoveMeet					・[今すく会議]アイコンの削除

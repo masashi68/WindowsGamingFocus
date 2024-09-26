@@ -33,6 +33,7 @@ $tweaks = @(
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
 	"InstallMVC", #DaddyMadu install Microsoft Visualstudio required for HPET service!
+	"InstallEverything", ### added by masashi68 ###
 	"Install7Zip",
 	"InstallChocoUpdates",
 	"EnableUlimatePower",    # DaddyMadu don't change order it will break other functions! just disable if you want with #
@@ -84,7 +85,7 @@ $tweaks = @(
 	"EnableUpdateMSRT",          # "EnableUpdateMSRT",    #"DisableUpdateMSRT",
 	"EnableUpdateDriver",        # "EnableUpdateDriver",  #"DisableUpdateDriver",
 	"DisableUpdateRestart",         # "EnableUpdateRestart",
-	"DisableHomeGroups",          # "EnableHomeGroups",
+	### comment by masashi68 ### "DisableHomeGroups",          # "EnableHomeGroups",
 	"EnableSharedExperiences",     # "SharedExperiences",
 	### comment by masashi68 ### "DisableRemoteAssistance",      # "EnableRemoteAssistance",
 	### comment by masashi68 ### "EnableRemoteDesktop",          # "DisableRemoteDesktop",
@@ -93,7 +94,7 @@ $tweaks = @(
 	"DisableStorageSense",        # "EnableStorageSense",
 	"DisableDefragmentation",     # "EnableDefragmentation",
 	"DisableSuperfetch",          # "EnableSuperfetch",
-	"EnableIndexing",
+	### comment by masashi68 ### "EnableIndexing",
 	"SetBIOSTimeUTC",         #"SetBIOSTimeUTC", #"SetBIOSTimeLocal",
 	"DisableHibernation",		# "EnableHibernation",
 	"EnableSleepButton",		# "DisableSleepButton",         
@@ -109,10 +110,10 @@ $tweaks = @(
 	"Disablelivetiles",
 	"wallpaperquality",
 	"DisableShistory",
-	"Disableshortcutword",
+	### comment by masashi68 ### "Disableshortcutword",
 	"DisableMouseKKS",
 	"DisableTransparency",
-	"TurnOffSafeSearch",
+	### comment by masashi68 ### "TurnOffSafeSearch",
 	"DisableCloudSearch",
 	"DisableDeviceHistory",
 	"DisableSearchHistroy",
@@ -208,6 +209,7 @@ $mobiletweaks = @(
 	"Write-ColorOutput", #Utilizing Colors for better Warning messages!
 	"InstallTitusProgs", #REQUIRED FOR OTHER PROGRAM INSTALLS!
 	"InstallMVC", #DaddyMadu install Microsoft Visualstudio required for HPET service!
+	"InstallEverything", ### added by masashi68 ###
 	"Install7Zip",
 	"InstallChocoUpdates",
 	"EnableUlimatePower",    # DaddyMadu don't change order it will break other functions! just disable if you want with #
@@ -259,7 +261,7 @@ $mobiletweaks = @(
 	"EnableUpdateMSRT",          # "EnableUpdateMSRT",    #"DisableUpdateMSRT",
 	"EnableUpdateDriver",        # "EnableUpdateDriver",  #"DisableUpdateDriver",
 	"DisableUpdateRestart",         # "EnableUpdateRestart",
-	"DisableHomeGroups",          # "EnableHomeGroups",
+	### comment by masashi68 ### "DisableHomeGroups",          # "EnableHomeGroups",
 	"EnableSharedExperiences",     # "SharedExperiences",
 	### comment by masashi68 ### "DisableRemoteAssistance",      # "EnableRemoteAssistance",
 	### comment by masashi68 ### "EnableRemoteDesktop",          # "DisableRemoteDesktop",
@@ -268,7 +270,7 @@ $mobiletweaks = @(
 	"DisableStorageSense",        # "EnableStorageSense",
 	"DisableDefragmentation",     # "EnableDefragmentation",
 	"DisableSuperfetch",          # "EnableSuperfetch",
-	"EnableIndexing",
+	### comment by masashi68 ### "EnableIndexing",
 	"SetBIOSTimeUTC",         #"SetBIOSTimeUTC", #"SetBIOSTimeLocal",
 	"DisableHibernation",		# "EnableHibernation",
 	"EnableSleepButton",		# "DisableSleepButton",         
@@ -284,10 +286,10 @@ $mobiletweaks = @(
 	"Disablelivetiles",
 	"wallpaperquality",
 	"DisableShistory",
-	"Disableshortcutword",
+	### comment by masashi68 ### "Disableshortcutword",
 	"DisableMouseKKS",
 	"DisableTransparency",
-	"TurnOffSafeSearch",
+	### comment by masashi68 ### "TurnOffSafeSearch",
 	"DisableCloudSearch",
 	"DisableDeviceHistory",
 	"DisableSearchHistroy",
@@ -484,14 +486,22 @@ Function InstallTitusProgs {
 Function InstallMVC {
 	choco install -y vcredist2010 | Out-Null
 }
+
+Function InstallEverything {
+	choco install -y everything | Out-Null
+}
+
 Function Install7Zip {
 	choco Install 7zip -y
 }
-
 Function InstallChocoUpdates {
         Clear-Host
 	choco upgrade all -y
 }
+
+
+
+
 
 #Apply PC Optimizations
 Function ApplyPCOptimizations {
@@ -1460,10 +1470,10 @@ Function SetBIOSTimeUTC {
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1
 	Push-Location
         Set-Location HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers
-        Set-ItemProperty . 0 "time.google.com"
+        Set-ItemProperty . 0 "time.asia.apple.com"
         Set-ItemProperty . "(Default)" "0"
         Set-Location HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters
-        Set-ItemProperty . NtpServer "time.google.com"
+        Set-ItemProperty . NtpServer "time.asia.apple.com"
         Pop-Location
         Stop-Service w32time
 	sc.exe config w32time start= auto
