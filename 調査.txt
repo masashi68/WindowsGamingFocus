@@ -2,7 +2,7 @@ CreateRestorePoint     		・復元ポイントの作成
 SlowUpdatesTweaks      		・Windows Update 延期(機能更新プログラム 30日 品質更新プログラム 4日)
 InstallTitusProgs      		・Chocolatey(パッケージマネージャー)のインストール/フリーウェア[O&O ShutUp10++]を使ったテレメトリ(診断データ収集)の無効化設定
 InstallMVC             		・Microsoft Visual C++ 2010 Service Pack 1のインストール（HPET サービスのため）
-InstallEverything			・Everything(全ファイル検索ツール)のインストール
+InstallEverything			・Everything(全ファイル検索ツール)のインストール(インデクシングサービス停止の代用)
 Install7Zip            		・7zip(圧縮解凍ソフト)のインストール
 InstallChocoUpdates    		・Chocolatey(パッケージマネージャー)のアップデート
 EnableUlimatePower	   		・Bitsum Highest Performance(高パフォーマンス電源プラン)のインストールと適応
@@ -59,4 +59,8 @@ DisableCloudSearch			・スタートメニューのクラウド検索の無効�
 DisableDeviceHistory		・スタートメニューのデバイス履歴の無効化
 DisableSearchHistroy		・スタートメニューの検索履歴の無効化
 RemoveMeet					・[今すく会議]アイコンの削除
-NoLockScreen				・ロック画面を挟まず、すぐにパスワード画面を表示
+DisableStickyKeys			・固定キー機能の無効化
+ShowFileOperationsDetails	・ファイル操作ダイアログを常に展開
+HideTaskbarPeopleIcon		・タスクバーに連絡先を表示しない
+SetVisualFXPerformance		・パフォーマンスオプションでパフォーマンス優先（「スクリーンフォントを滑らかにする」「デスクトップのアイコン名に影をつける」はON)
+FullscreenOptimizationFIX	・全画面モード最適化の無効化/マルチプレーンオーバーレイ機能無効化など
