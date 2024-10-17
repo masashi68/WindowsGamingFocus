@@ -1470,10 +1470,10 @@ Function SetBIOSTimeUTC {
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\TimeZoneInformation" -Name "RealTimeIsUniversal" -Type DWord -Value 1
 	Push-Location
         Set-Location HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DateTime\Servers
-        Set-ItemProperty . 0 "time.asia.apple.com"
+        Set-ItemProperty . 0 "time.apple.com"
         Set-ItemProperty . "(Default)" "0"
         Set-Location HKLM:\SYSTEM\CurrentControlSet\services\W32Time\Parameters
-        Set-ItemProperty . NtpServer "time.asia.apple.com"
+        Set-ItemProperty . NtpServer "time.apple.com"
         Pop-Location
         Stop-Service w32time
 	sc.exe config w32time start= auto
