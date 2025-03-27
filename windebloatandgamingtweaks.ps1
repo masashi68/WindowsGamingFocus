@@ -10,10 +10,10 @@
 #  
 #  
 ##########
-$host.ui.RawUI.WindowTitle = "DaddyMadu Ultimate Windows Debloater and Gaming Focus Tweaker"
-cmd /c 'title [DaddyMadu Ultimate Windows Debloater and Gaming Focus Tweaker]'
-Write-Host 'Welcome to DaddyMadu Ultimate Windows Debloater and Gaming Focus Tweaker';
-Write-Host "Please DISABLE your ANTIVIRUS to prevent any issues and PRESS any KEY to Continue!" -ForegroundColor Red -BackgroundColor Black
+$host.ui.RawUI.WindowTitle = "Windows Gaming Focus"
+cmd /c 'title [Windows Gaming Focus]'
+Write-Host 'Windows Gaming Focus';
+Write-Host "PRESS any KEY to Continue!" -ForegroundColor Red -BackgroundColor Black
 $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown');
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT | Out-Null
 New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
