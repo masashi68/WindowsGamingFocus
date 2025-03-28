@@ -11,7 +11,7 @@ powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointM
 ```
 6. 以下のメッセージが表示されたら何かキー（スペース等）を押します。
 
-   "Please DISABLE your ANTIVIRUS to prevent any issues and PRESS any KEY to Continue!"
+   "PRESS any KEY to Continue!"
    
 7. 後は待つだけ。処理が終わると自動的に再起動します。
 
