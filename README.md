@@ -2,12 +2,12 @@
 管理権限でコマンド画面を開きコマンドを貼り付けます。　以下の手順で実施します。
 
 1. [Win]キー + R で[ファイル名を指定して実行]を開きます。
-2. [cmd]と入力します。
-4. [Shift]+[CTRL]を押しながら[Enter]を押します。
-5. [このアプリが変更を加えることを許可しますか]で[はい]を選択します。
-6. 下記のコマンドをコピーし、コマンド画面に張り付けて[Enter]を押します。（右端の四角いアイコンをクリックするとコピーされます）
+2. [powershell]と入力します。
+3. [Shift]+[CTRL]を押しながら[Enter]を押します。
+4. [このアプリが変更を加えることを許可しますか]で[はい]を選択します。
+5. 下記のコマンドをコピーし、Powershellの青い画面に張り付けて[Enter]を押します。（右端の四角いアイコンをクリックするとコピーされます）
 ```
-powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')"
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; &iex(New-Object Net.WebClient).DownloadString('https://x.gd/49Xub')
 ```
 6. 以下のメッセージが表示されたら何かキー（スペース等）を押します。
 
@@ -16,7 +16,7 @@ powershell -NoProfile -ExecutionPolicy unrestricted -Command "[Net.ServicePointM
 7. 後は待つだけ。処理が終わると自動的に再起動します。
 
 
-以降はFork元から変更なしです
+以下の分はFork元から変更なしです
 
 ↓
 
