@@ -2,9 +2,6 @@ CreateRestorePoint     		・復元ポイントの作成
 SlowUpdatesTweaks      		・Windows Update 延期(機能更新プログラム 30日 品質更新プログラム 4日)
 InstallTitusProgs      		・Chocolatey(パッケージマネージャー)のインストール/フリーウェア[O&O ShutUp10++]を使ったテレメトリ(診断データ収集)の無効化設定
 InstallMVC             		・Microsoft Visual C++ 2010 Service Pack 1のインストール（HPET サービスのため）
-InstallEverything			・Everything(全ファイル検索ツール)のインストール(インデクシングサービス停止の代用)
-Install7Zip            		・7zip(圧縮解凍ソフト)のインストール
-InstallChocoUpdates    		・Chocolatey(パッケージマネージャー)のアップデート
 EnableUlimatePower	   		・Bitsum Highest Performance(高パフォーマンス電源プラン)のインストールと適応
 MSIMode				   		・グラフィックカードがある場合MSISupportedを1にする(オーディオ、グラフィックパフォーマンス向上)
 AdwCleaner			   		・AdwCleanerを使ったアドウェアやスパイウェア、不要なレジストリの削除
