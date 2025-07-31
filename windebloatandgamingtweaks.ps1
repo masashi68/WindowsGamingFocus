@@ -567,28 +567,36 @@ Function askXBOX {
 
 #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 Function MSIMode {
-    $errpref = $ErrorActionPreference # save actual preference
-    $ErrorActionPreference = "SilentlyContinue"
-    $GPUIDS = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty PNPDeviceID
+    Write-Warning " Enabling MSI mode can cause system instability. Make sure you have a restore point!"
 
-    foreach ($GPUID in $GPUIDS) {
+    $ErrorActionPreference = "SilentlyContinue"
+    $GPUs = Get-CimInstance Win32_VideoController
+
+    foreach ($GPU in $GPUs) {
+        $PNPDeviceID = $GPU.PNPDeviceID
+        $DeviceKey = "HKLM:\SYSTEM\CurrentControlSet\Enum\$PNPDeviceID"
+
         try {
-            $CheckDeviceDes = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID").DeviceDesc
-            if (($CheckDeviceDes -like "*GTX*") -or ($CheckDeviceDes -like "*RTX*") -or ($CheckDeviceDes -like "*AMD*")) {
-                'GTX/RTX/AMD Compatible Card Found! Enabling MSI Mode...'
-                New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Force | Out-Null
-                Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Name "MSISupported" -Type DWord -Value 1
+            $DeviceDesc = (Get-ItemProperty -Path $DeviceKey).DeviceDesc
+
+            if ($DeviceDesc -like "*GTX*" -or $DeviceDesc -like "*RTX*" -or $DeviceDesc -like "*AMD*") {
+                Write-Host "Compatible GPU detected: $DeviceDesc"
+
+                $MSIPath = "$DeviceKey\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
+                New-Item -Path $MSIPath -Force | Out-Null
+                Set-ItemProperty -Path $MSIPath -Name "MSISupported" -Type DWord -Value 1
+
+                Write-Host "MSI Mode enabled for $DeviceDesc"
             } else {
-                'No GTX/RTX/AMD Compatible Card Found! Skipping...'
+                Write-Host "Unsupported GPU: $DeviceDesc – Skipping..."
             }
         } catch {
-            Write-Output "Error processing $GPUID ? likely not accessible or missing."
+            Write-Warning "Failed to process device at: $DeviceKey"
         }
     }
 
-    $ErrorActionPreference = $errpref # restore previous preference
+    Write-Host "MSI Mode script completed!"
 }
-
 ##########
 # Privacy Tweaks
 ##########
