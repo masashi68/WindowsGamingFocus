@@ -567,21 +567,27 @@ Function askXBOX {
 
 #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 Function MSIMode {
-$errpref = $ErrorActionPreference #save actual preference
-$ErrorActionPreference = "silentlycontinue"
-$GPUIDS = @(
-(wmic path win32_VideoController get PNPDeviceID | Select-Object -Skip 2 | Format-List | Out-String).Trim()
-    )
+    $errpref = $ErrorActionPreference # save actual preference
+    $ErrorActionPreference = "SilentlyContinue"
+    # wmic 出力を行単位で整形し、空行とヘッダを除去
+    $GPUIDS = @(wmic path win32_VideoController get PNPDeviceID | ForEach-Object { $_.Trim() } | Where-Object { $_ -and ($_ -notmatch "PNPDeviceID") })
+
     foreach ($GPUID in $GPUIDS) {
-$CheckDeviceDes = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID").DeviceDesc
-    } if(($CheckDeviceDes -like "*GTX*") -or ($CheckDeviceDes -like "*RTX*") -or ($CheckDeviceDes -like "*AMD*")) {
-  'GTX/RTX/AMD Compatible Card Found! Enabling MSI Mode...'
-  New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Force | Out-Null
-  Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Name "MSISupported" -Type DWord -Value 1
-} else {
-  'No GTX/RTX/AMD Compatible Card Found! Skiping...'
-}
-$ErrorActionPreference = $errpref #restore previous preference	
+        try {
+            $CheckDeviceDes = (Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID").DeviceDesc
+            if (($CheckDeviceDes -like "*GTX*") -or ($CheckDeviceDes -like "*RTX*") -or ($CheckDeviceDes -like "*AMD*")) {
+                'GTX/RTX/AMD Compatible Card Found! Enabling MSI Mode...'
+                New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Force | Out-Null
+                Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Enum\$GPUID\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties\" -Name "MSISupported" -Type DWord -Value 1
+            } else {
+                'No GTX/RTX/AMD Compatible Card Found! Skipping...'
+            }
+        } catch {
+            Write-Output "Error processing $GPUID ? likely not accessible or missing."
+        }
+    }
+
+    $ErrorActionPreference = $errpref # restore previous preference
 }
 
 ##########
@@ -2739,7 +2745,9 @@ Function DisableHPET {
 	bcdedit /set {globalsettings} custom:16000067 true | Out-Null
 	bcdedit /set {globalsettings} custom:16000069 true | Out-Null
 	bcdedit /set {globalsettings} custom:16000068 true | Out-Null
+
 	wmic path Win32_PnPEntity where "name='High precision event timer'" call enable | Out-Null
+
       if ($PlatformCheck -eq "Desktop") {
      	Write-Output "Platform is $PlatformCheck disabling dynamic tick..."
      	bcdedit /set disabledynamictick yes | Out-Null
@@ -2747,6 +2755,8 @@ Function DisableHPET {
      	Write-Output "Platform is $PlatformCheck enabling dynamic tick..."
      	bcdedit /set disabledynamictick no
      }
+
+	 
 	$ErrorActionPreference = $errpref #restore previous preference
 }
 
@@ -2914,7 +2924,10 @@ Function DecreaseMKBuffer {
 
 #Applying Nvidia Tweaks if GTX/RTX Card Detected!
 Function NvidiaTweaks {
-       $CheckGPU = wmic path win32_VideoController get name
+       #$CheckGPU = wmic path win32_VideoController get name
+	   # 2025-07-31 Since 'wmic' has been deprecated in recent Windows versions,use 'Get-CimInstance' instead to retrieve GPU information.
+	   $CheckGPU = Get-CimInstance Win32_VideoController | Select-Object -ExpandProperty Name
+
        if(($CheckGPU -like "*GTX*") -or ($CheckGPU -like "*RTX*")) {
        Write-Output "NVIDIA GTX/RTX Card Detected! Applying Nvidia Power Tweaks..."
        Invoke-WebRequest -Uri "https://git.io/JLP93" -OutFile "$Env:windir\system32\BaseProfile.nip" -ErrorAction SilentlyContinue
