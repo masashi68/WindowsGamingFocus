@@ -569,8 +569,7 @@ Function askXBOX {
 Function MSIMode {
     $errpref = $ErrorActionPreference # save actual preference
     $ErrorActionPreference = "SilentlyContinue"
-    # wmic 出力を行単位で整形し、空行とヘッダを除去
-    $GPUIDS = @(wmic path win32_VideoController get PNPDeviceID | ForEach-Object { $_.Trim() } | Where-Object { $_ -and ($_ -notmatch "PNPDeviceID") })
+    $GPUIDS = Get-CimInstance -ClassName Win32_VideoController | Select-Object -ExpandProperty PNPDeviceID
 
     foreach ($GPUID in $GPUIDS) {
         try {
