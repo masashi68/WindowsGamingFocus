@@ -567,8 +567,6 @@ Function askXBOX {
 
 #Enable Or Disable MSI Mode For Supported Cards, WARNING ENABLING MSI MODE MIGHT CRUSH YOUR SYSTEM! IF IT HAPPENS PLEASE RESTORE LAST WORKING SYSTEM RESTORE POINT AND DON'T ENABLE MSI MODE ON THIS SYSTEM AGAIN!
 Function MSIMode {
-    Write-Warning " Enabling MSI mode can cause system instability. Make sure you have a restore point!"
-
     $ErrorActionPreference = "SilentlyContinue"
     $GPUs = Get-CimInstance Win32_VideoController
 
@@ -578,25 +576,38 @@ Function MSIMode {
 
         try {
             $DeviceDesc = (Get-ItemProperty -Path $DeviceKey).DeviceDesc
+            Write-Host "Detected device: $DeviceDesc"
 
-            if ($DeviceDesc -like "*GTX*" -or $DeviceDesc -like "*RTX*" -or $DeviceDesc -like "*AMD*") {
-                Write-Host "Compatible GPU detected: $DeviceDesc"
-
+            if ($DeviceDesc -match "GTX|RTX|Radeon|AMD|Intel|UHD|Iris") {
                 $MSIPath = "$DeviceKey\Device Parameters\Interrupt Management\MessageSignaledInterruptProperties"
-                New-Item -Path $MSIPath -Force | Out-Null
-                Set-ItemProperty -Path $MSIPath -Name "MSISupported" -Type DWord -Value 1
 
-                Write-Host "MSI Mode enabled for $DeviceDesc"
+                if (-not (Test-Path $MSIPath)) {
+                    New-Item -Path $MSIPath -Force | Out-Null
+                    Write-Host "MSI registry key created"
+                }
+
+                $currentValue = (Get-ItemProperty -Path $MSIPath -Name "MSISupported" -ErrorAction SilentlyContinue).MSISupported
+
+                if ($currentValue -eq $null) {
+                    Set-ItemProperty -Path $MSIPath -Name "MSISupported" -Value 1
+                    Write-Host "MSISupported value added and enabled"
+                } elseif ($currentValue -ne 1) {
+                    Set-ItemProperty -Path $MSIPath -Name "MSISupported" -Value 1
+                    Write-Host "MSISupported value updated to enabled"
+                } else {
+                    Write-Host "MSI mode is already enabled"
+                }
             } else {
-                Write-Host "Unsupported GPU: $DeviceDesc – Skipping..."
+                Write-Host "Unsupported or unknown GPU, skipped: $DeviceDesc"
             }
         } catch {
-            Write-Warning "Failed to process device at: $DeviceKey"
+            Write-Host "Device processing failed: $DeviceKey"
         }
     }
 
-    Write-Host "MSI Mode script completed!"
+    Write-Host "MSI mode configuration completed"
 }
+
 ##########
 # Privacy Tweaks
 ##########
