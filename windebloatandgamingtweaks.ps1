@@ -2626,25 +2626,45 @@ Function QOL {
 # Gaming Tweaks Functions
 ##########
 
-#Disable Fullscreen Optimizations
+# Disable Fullscreen Optimizations and related Game DVR features
 Function FullscreenOptimizationFIX {
-	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-	Write-Output "Disabling Full ScreenOptimization..."
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Type DWord -Value 2
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DSEBehavior" -Type DWord -Value 2
-	Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0
- 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\GraphicsSettings" -Name "SwapEffectUpgradeCache" -Type DWord -Value 1
-  	Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences" -Name "DirectXUserGlobalSettings" -Type String -Value 'SwapEffectUpgradeEnable=1;'
-   	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "InactivityShutdownDelay" -Type DWord -Value 4294967295
-    	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Type DWord -Value 5
-   	Disable-MMAgent -MemoryCompression | Out-Null
-    	$ErrorActionPreference = $errpref #restore previous preference
+    Write-Output "Disabling Fullscreen Optimization and related Game DVR settings..."
+
+    $errpref = $ErrorActionPreference
+    $ErrorActionPreference = "SilentlyContinue"
+
+    # Disable Fullscreen Optimization behavior modes
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehaviorMode" -Type DWord -Value 2
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Type DWord -Value 0
+    Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DSEBehavior" -Type DWord -Value 2
+
+    # Disable App capture (Game DVR) for the current user
+    Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\GameDVR" -Name "AppCaptureEnabled" -Type DWord -Value 0
+
+    # Enable SwapEffectUpgradeCache for DirectX Graphics Settings
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\GraphicsSettings" -Name "SwapEffectUpgradeCache" -Type DWord -Value 1
+    Set-ItemProperty -Path "HKCU:\Software\Microsoft\DirectX\UserGpuPreferences" -Name "DirectXUserGlobalSettings" -Type String -Value 'SwapEffectUpgradeEnable=1;'
+
+    # Set maximum inactivity shutdown delay for SoftwareProtectionPlatform service
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SoftwareProtectionPlatform" -Name "InactivityShutdownDelay" -Type DWord -Value 4294967295
+
+    # Set Desktop Window Manager overlay test mode
+    Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Dwm" -Name "OverlayTestMode" -Type DWord -Value 5
+
+    # Check if SysMain service (related to Memory Compression) is running before disabling memory compression
+    $sysMain = Get-Service -Name "SysMain" -ErrorAction SilentlyContinue
+    if ($sysMain -and $sysMain.Status -eq 'Running') {
+        Disable-MMAgent -MemoryCompression | Out-Null
+    } else {
+        Write-Output "SysMain service is not running or disabled; skipping Memory Compression disable."
+    }
+
+    $ErrorActionPreference = $errpref
 }
+
 
 #Game Optimizations Priority Tweaks -Type String -Value "Deny"
 Function GameOptimizationFIX {
@@ -3657,6 +3677,7 @@ $PlatformCheck = (Get-Computerinfo).CsPCSystemType
      Write-Output "Platform is $PlatformCheck applying Desktop Tweaks..."
 	 $tweaks | ForEach-Object { Invoke-Expression $_ }
      }
+
 
 
 
