@@ -1008,15 +1008,22 @@ Function EnableWAPPush {
 	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\dmwappushservice" -Name "DelayedAutoStart" -Type DWord -Value 1
 }
 
-# Disable New Windows 10 21h1 News Feed
+# Disable the Widgets and News Feed feature on the taskbar
 Function DisableNewsFeed {
-        Write-Output "Disabling Windows 10 News and Interests Feed..."
+	Write-Output "Disabling Windows 11 Widgets and News Feed..."
+
+	# Create the policy registry key if it doesn't exist
 	If (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
 		New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Force | Out-Null
 	}
+
+	# Disable Widgets (Feeds) system-wide via Group Policy
 	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
+
+	# Hide Widgets button from taskbar for current user
 	Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
-	}
+}
+
 
 ##########
 # Security Tweaks
@@ -3650,5 +3657,6 @@ $PlatformCheck = (Get-Computerinfo).CsPCSystemType
      Write-Output "Platform is $PlatformCheck applying Desktop Tweaks..."
 	 $tweaks | ForEach-Object { Invoke-Expression $_ }
      }
+
 
 
