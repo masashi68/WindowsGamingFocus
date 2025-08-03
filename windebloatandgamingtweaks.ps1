@@ -611,25 +611,68 @@ Function MSIMode {
 ##########
 # Privacy Tweaks
 ##########
-
-# Disable Telemetry
-# Note: This tweak may cause Enterprise edition to stop receiving Windows updates.
-# Windows Update control panel will then show message "Your device is at risk because it's out of date and missing important security and quality updates. Let's get you back on track so Windows can run more securely. Select this button to get going".
-# In such case, enable telemetry, run Windows update and then disable telemetry again. See also https://github.com/Disassembler0/Win10-Initial-Setup-Script/issues/57
 Function DisableTelemetry {
-	Write-Output "Disabling Telemetry..."
-	$errpref = $ErrorActionPreference #save actual preference
-        $ErrorActionPreference = "silentlycontinue"
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
-	Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" | Out-Null
-	Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\ProgramDataUpdater" | Out-Null
-	Disable-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy" | Out-Null
-	Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" | Out-Null
-	Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" | Out-Null
-	Disable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
-	$ErrorActionPreference = $errpref #restore previous preference
+	Write-Output "Disabling Telemetry, Diagnostic Tasks, and Ads..."
+	$errpref = $ErrorActionPreference
+	$ErrorActionPreference = "SilentlyContinue"
+
+	# ---- Registry settings to reduce telemetry ----
+	$regPaths = @(
+		"HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection",
+		"HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Policies\DataCollection",
+		"HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
+	)
+	foreach ($path in $regPaths) {
+		New-Item -Path $path -Force | Out-Null
+		Set-ItemProperty -Path $path -Name "AllowTelemetry" -Type DWord -Value 0
+	}
+
+	# ---- Disable scheduled tasks related to telemetry and diagnostics ----
+	$taskList = @(
+		"Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
+		"Microsoft\Windows\Application Experience\ProgramDataUpdater",
+		"Microsoft\Windows\Autochk\Proxy",
+		"Microsoft\Windows\Customer Experience Improvement Program\Consolidator",
+		"Microsoft\Windows\Customer Experience Improvement Program\UsbCeip",
+		"Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector"
+	)
+	foreach ($fullTaskPath in $taskList) {
+		$taskName = $fullTaskPath.Split('\')[-1]
+		$taskPath = ($fullTaskPath.Substring(0, $fullTaskPath.LastIndexOf('\') + 1))
+		if (Get-ScheduledTask -TaskName $taskName -TaskPath $taskPath -ErrorAction SilentlyContinue) {
+			Disable-ScheduledTask -TaskName $taskName -TaskPath $taskPath | Out-Null
+		}
+	}
+
+	# ---- Stop and disable telemetry service (DiagTrack) ----
+	if (Get-Service -Name "DiagTrack" -ErrorAction SilentlyContinue) {
+		Stop-Service -Name "DiagTrack" -Force
+		Set-Service -Name "DiagTrack" -StartupType Disabled
+	}
+
+	# ---- Disable ads, tips, suggestions, and personalized experiences ----
+	$adSettings = @(
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager", "ContentDeliveryAllowed", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager", "OemPreInstalledAppsEnabled", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager", "PreInstalledAppsEnabled", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager", "PreInstalledAppsEverEnabled", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager", "SilentInstalledAppsEnabled", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager", "SystemPaneSuggestionsEnabled", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced", "ShowSyncProviderNotifications", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement", "ScoobeSystemSettingEnabled", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\Privacy", "TailoredExperiencesWithDiagnosticDataEnabled", 0),
+		@("HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo", "Enabled", 0)
+	)
+	foreach ($item in $adSettings) {
+		$path = $item[0]
+		$name = $item[1]
+		$value = $item[2]
+		New-Item -Path $path -Force | Out-Null
+		Set-ItemProperty -Path $path -Name $name -Type DWord -Value $value
+	}
+
+	$ErrorActionPreference = $errpref
+	Write-Output "Telemetry and advertising features have been disabled as much as allowed by the current Windows edition."
 }
 
 # Enable Telemetry
@@ -3607,4 +3650,5 @@ $PlatformCheck = (Get-Computerinfo).CsPCSystemType
      Write-Output "Platform is $PlatformCheck applying Desktop Tweaks..."
 	 $tweaks | ForEach-Object { Invoke-Expression $_ }
      }
+
 
