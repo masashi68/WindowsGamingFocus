@@ -3530,7 +3530,7 @@ Function CreateRestorePoint {
   Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SystemRestore" -Name "SystemRestorePointCreationFrequency" -Value 0
   cmd /c 'vssadmin resize shadowstorage /on="%SystemDrive%" /For="%SystemDrive%" /MaxSize=5GB 2>nul' >$null
   Enable-ComputerRestore -Drive "$env:SystemDrive\"
-  Checkpoint-Computer -Description "BeforeDaddyMaduScript" -RestorePointType "MODIFY_SETTINGS"
+  Checkpoint-Computer -Description "Before WindowsGamingFocus" -RestorePointType "MODIFY_SETTINGS"
 }
 
 # In case you have removed them for good, you can try to restore the files using installation medium as follows
@@ -3677,6 +3677,7 @@ $PlatformCheck = (Get-Computerinfo).CsPCSystemType
      Write-Output "Platform is $PlatformCheck applying Desktop Tweaks..."
 	 $tweaks | ForEach-Object { Invoke-Expression $_ }
      }
+
 
 
 
