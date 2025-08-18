@@ -1650,8 +1650,9 @@ Function EnableFastStartup {
 ##########
 #Disabling power throttling.
 Function PowerThrottlingOff {
-	New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Force | Out-Null
-	New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power" -Name "PowerThrottlingOff" -PropertyType DWord -Value 1 -Force | Out-Null
+ 	Write-Output "Disabling power throttling..."
+	New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Force | Out-Null
+	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -Type DWord -Value 1
 }
 
 #Setting Processor scheduling.
@@ -3676,6 +3677,7 @@ $PlatformCheck = (Get-Computerinfo).CsPCSystemType
      Write-Output "Platform is $PlatformCheck applying Desktop Tweaks..."
 	 $tweaks | ForEach-Object { Invoke-Expression $_ }
      }
+
 
 
 
