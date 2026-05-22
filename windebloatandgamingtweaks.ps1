@@ -104,7 +104,7 @@ $tweaks = @(
 	"DisableIndexing",
     ### Windows Tweaks ###
 	"PowerThrottlingOff",
-	"Win32PrioritySeparation",
+	### comment by masashi68 "Win32PrioritySeparation",
 	"DisableAERO",
 	"BSODdetails",
 	"Disablelivetiles",
@@ -280,7 +280,7 @@ $mobiletweaks = @(
 	"DisableIndexing",
     ### Windows Tweaks ###
 	"PowerThrottlingOff",
-	"Win32PrioritySeparation",
+	### comment by masashi68 "Win32PrioritySeparation",
 	"DisableAERO",
 	"BSODdetails",
 	"Disablelivetiles",
@@ -505,14 +505,35 @@ Function InstallChocoUpdates {
 
 #Apply PC Optimizations
 Function ApplyPCOptimizations {
-        Write-Output "Applying PC Optimizations..."
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 0xffffffff
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "AlwaysOn" -Type DWord -Value 1
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NoLazyMode" -Type DWord -Value 1 ##masashi68 LazyMode -> NoLazyMode
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "LazyModeTimeout" -Type DWord -Value 25000
-    Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Services\Ndu" -Name "Start" -Type DWord -Value 4   ### added masashi68 Disabling Ndu High RAM Usage...
- }
+     Write-Output "Applying Elite PC and Task Scheduling Optimizations for Gaming..."
+     $errpref = $ErrorActionPreference
+     $ErrorActionPreference = "silentlycontinue"
+
+     $ProfilePath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile"
+
+     # 1. ネットワーク・スロットリングの完全解除（配信パケットを絶対にせき止めない）
+     Set-ItemProperty -Path $ProfilePath -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295
+
+     # 2. システム応答性を100%ゲームに全振り（バックグラウンドの予約リソースをゼロ化）
+     Set-ItemProperty -Path $ProfilePath -Name "SystemResponsiveness" -Type DWord -Value 0
+
+     # 3. ゲーム実行時のOSタスクスケジューラを限界突破させる設定
+     $GamesPath = "$ProfilePath\Tasks\Games"
+     if (!(Test-Path $GamesPath)) { New-Item -Path $GamesPath -Force | Out-Null }
+
+     # GPU優先度、CPU優先度を「最高（High / 6 / 8）」にロック
+     Set-ItemProperty -Path $GamesPath -Name "GPU Priority" -Type DWord -Value 8
+     Set-ItemProperty -Path $GamesPath -Name "Priority" -Type DWord -Value 6
+     Set-ItemProperty -Path $GamesPath -Name "Scheduling Category" -Type String -Value "High"
+     Set-ItemProperty -Path $GamesPath -Name "SFIO Priority" -Type String -Value "High"
+
+     # 【追加】バックグラウンドサービスより「ゲーム（前台プロセス）」のCPUクロック割り当てを圧倒的に優遇する
+     # 良いCPU（i7など）のクロックブーストをゲームに集中させます
+     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "Win32PrioritySeparation" -Type DWord -Value 38
+
+     $ErrorActionPreference = $errpref
+     Write-Output "Elite PC Optimizations Applied Successfully!"
+}
 
 #Enable or Disable and remove xbox related apps
 Function askXBOX {
@@ -2668,23 +2689,37 @@ Function FullscreenOptimizationFIX {
 
 #Game Optimizations Priority Tweaks -Type String -Value "Deny"
 Function GameOptimizationFIX {
-	Write-Output "Apply Gaming Optimization Fixs..."
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High"
-	Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "SFIO Priority" -Type String -Value "High"
-	Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\PriorityControl" -Name "IRQ8Priority" -Type DWord -Value 1
-  	reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v CpuPriorityClass /t REG_DWORD /d 4 /f | Out-Null
-   	reg ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\csrss.exe\PerfOptions" /v IoPriority /t REG_DWORD /d 3 /f | Out-Null
-    	fsutil behavior set disable8dot3 1
-     	fsutil behavior set disablelastaccess 1
-    	$PlatformCheck = (Get-Computerinfo).CsPCSystemType
-     if ($PlatformCheck -eq "Desktop") {
-     Write-Output "Platform is $PlatformCheck Disabling power saving options on all connected devices..."
-     Get-WmiObject MSPower_DeviceEnable -Namespace root\wmi | ForEach-Object { $_.enable = $false; $_.psbase.put(); } | Out-Null
+     Write-Output "Apply Gaming Optimization Fixes (Safe & Modernized)..."
+     $errpref = $ErrorActionPreference
+     $ErrorActionPreference = "silentlycontinue"
+
+     # 1. ストレージ（SSD/HDD）のファイルシステム高速化
+     # 互換性のための古い「8.3形式の短縮名作成」を無効化（ファイル書き込み速度がUP）
+     fsutil behavior set disable8dot3 1 | Out-Null
+     # ファイルに「最後にアクセスした日時」を記録する機能をオフ（無駄なディスク書き込みを削減しゲームを滑らかに）
+     fsutil behavior set disablelastaccess 1 | Out-Null
+
+     # 2. プラットフォーム判定のバグ修正（デスクトップ・ミニPC・ノートPCすべてで動作を保証）
+     # 元のコードだとミニPCやデスクトップの一部でスルーされるため、より確実なハードウェア情報を取得
+     $ChassisType = (Get-CimInstance -ClassName Win32_SystemEnclosure).ChassisTypes
+
+     # 3（Desktop）, 4（Low Profile Desktop）, 6（Mini Tower）, 7（Tower）など、据え置き型PCであればすべて実行
+     # ※N100ミニPCも据え置き（Desktop扱い）として確実に判定をパスします
+     if ($ChassisType -match "3|4|5|6|7|15|16") {
+         Write-Output "Platform is Fixed-PC. Disabling power saving options on all connected devices..."
+
+         # 非推奨のGet-WmiObjectを、現代的なGet-CimInstanceに変更。
+         # USBや各種内部デバイスが「勝手に省電力モード（低応答化）」になるのを一括で徹底的に禁止します。
+         Get-CimInstance -Namespace root\wmi -ClassName MSPower_DeviceEnable | ForEach-Object {
+             $_.Enable = $false
+             Set-CimInstance -CimInstance $_
+         }
      } else {
-     Write-Output "Platform is $PlatformCheck No power saving edits has been made."
+         Write-Output "Platform is Mobile/Laptop. No power saving edits have been made."
      }
+
+     $ErrorActionPreference = $errpref
+     Write-Output "Gaming Optimization Fixes Applied!"
 }
 
 #Forcing Raw Mouse Input
@@ -3219,130 +3254,134 @@ Function AMDGPUTweaks {
 
 #Optimizing Network and applying Tweaks for no throttle and maximum speed!
 Function NetworkOptimizations {
-       Write-Output "Optimizing Network and applying Tweaks for no throttle and maximum speed!..."
-       $errpref = $ErrorActionPreference #save actual preference
-       $ErrorActionPreference = "silentlycontinue"
-       New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -ErrorAction SilentlyContinue | Out-Null
-       New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -ErrorAction SilentlyContinue | Out-Null
-       New-Item -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -ErrorAction SilentlyContinue | Out-Null
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPER1_0SERVER" -Name "explorer.exe" -Type DWord -Value 10
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl\FEATURE_MAXCONNECTIONSPERSERVER" -Name "explorer.exe" -Type DWord -Value 10
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "LocalPriority" -Type DWord -Value 4
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "HostsPriority" -Type DWord -Value 5
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "DnsPriority" -Type DWord -Value 6
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\ServiceProvider" -Name "NetbtPriority" -Type DWord -Value 7
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Name "NonBestEffortlimit" -Type DWord -Value 0
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -Name "Do not use NLA" -Type String -Value "1"
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "Size" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "MaxUserPort" -Type DWord -Value 65534
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "TcpTimedWaitDelay" -Type DWord -Value 30
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DefaultTTL" -Type DWord -Value 64
-       Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -Name "TCPNoDelay" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\ControlSet001\Control\Lsa" -Name "LmCompatibilityLevel" -Type DWord -Value 1
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters" -Name "EnableAutoDoh" -Type DWord -Value 2
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "MaxNumRssCpus" -Type DWord -Value 4
-       Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DisableTaskOffload" -Type DWord -Value 0
-       Set-NetTCPSetting -SettingName internet -EcnCapability disabled | Out-Null
-       Set-NetOffloadGlobalSetting -Chimney disabled | Out-Null
-       Set-NetTCPSetting -SettingName internet -Timestamps disabled | Out-Null
-       Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 | Out-Null
-       Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled | Out-Null
-       Set-NetTCPSetting -SettingName internet -InitialRto 2000 | Out-Null
-       Set-NetTCPSetting -SettingName internet -MinRto 300 | Out-Null
-       Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal | Out-Null
-       Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled | Out-Null
-       netsh int ip set global taskoffload=enabled | Out-Null
-	   netsh int tcp set global ecncapability=enabled | Out-Null
-	   netsh int tcp set global rss=enabled | Out-Null
-	   netsh int tcp set global rsc=enabled | Out-Null
-	   netsh int tcp set global dca=enabled | Out-Null
-	   netsh int tcp set global netdma=enabled | Out-Null
-	   netsh int tcp set global fastopen=enabled | Out-Null
-	   netsh int tcp set global fastopenfallback=enabled | Out-Null
-	   netsh int tcp set global prr=enabled | Out-Null
-	   netsh int tcp set global pacingprofile=always | Out-Null
-	   netsh int tcp set global hystart=enabled | Out-Null
-	   netsh int tcp set supplemental internet enablecwndrestart=enabled | Out-Null
-	   netsh int tcp set security mpp=enabled | Out-Null
-	   netsh int tcp set global autotuninglevel=normal | Out-Null
-	   netsh int tcp set supplemental internet congestionprovider=dctcp | Out-Null
-       Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled | Out-Null
-       Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled | Out-Null
-       Enable-NetAdapterChecksumOffload -Name * | Out-Null
-	   Enable-NetAdapterChecksumOffload -Name "*" | Out-Null
-	   Enable-NetAdapterIPsecOffload -Name "*" | Out-Null
-	   Enable-NetAdapterRsc -Name "*" | Out-Null
-	   Enable-NetAdapterRss -Name "*" | Out-Null
-	   Enable-NetAdapterQos -Name "*" | Out-Null
-	   Disable-NetAdapterLso -Name "*"  | Out-Null
-	   Enable-NetAdapterEncapsulatedPacketTaskOffload -Name "*" | Out-Null
-	   Enable-NetAdapterSriov -Name "*" | Out-Null
-	   Enable-NetAdapterVmq -Name "*" | Out-Null
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy-Efficient Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy Efficient Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy Efficient Ethernet" -DisplayValue "Off" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Ultra Low Power Mode" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "System Idle Power Saver" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Green Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Power Saving Mode" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Gigabit Lite" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "EEE" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Advanced EEE" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "ARP Offload" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "NS Offload" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Large Send Offload v2 (IPv4)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Large Send Offload v2 (IPv6)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "TCP Checksum Offload (IPv4)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "TCP Checksum Offload (IPv6)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "UDP Checksum Offload (IPv4)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "UDP Checksum Offload (IPv6)" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Idle Power Saving" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Flow Control" -DisplayValue "Enabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Flow Control" -DisplayValue "Rx & Tx Enabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Interrupt Moderation" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Reduce Speed On Power Down" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Interrupt Moderation Rate" -DisplayValue "Off" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Log Link State Event" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Packet Priority & VLAN" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Packet Priority & VLAN" -DisplayValue "Packet Priority & VLAN Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Priority & VLAN" -DisplayValue "Priority & VLAN Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "IPv4 Checksum Offload" -DisplayValue "Rx & Tx Enabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Jumbo Frame" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Maximum Number of RSS Queues" -DisplayValue "2 Queues" -ErrorAction SilentlyContinue
-       Set-NetAdapterAdvancedProperty -Name * -DisplayName "Receive Side Scaling" -DisplayValue "Enabled" -ErrorAction SilentlyContinue
-	   Set-NetAdapterRdma -Name "*" -Enabled $True -ErrorAction SilentlyContinue
-	   Set-NetAdapterRsc -Name "*"-IPv4Enabled $True -IPv6Enabled $True -ErrorAction SilentlyContinue
-	   Set-NetAdapterRss -Name "*" -Profile Conservative -ErrorAction SilentlyContinue
-	   Set-NetAdapterIPsecOffload -Name "*" -Enabled $True -ErrorAction SilentlyContinue
-	   Set-NetAdapterChecksumOffload -Name "*" -TcpIPv6Enabled RxTxEnabled -ErrorAction SilentlyContinue
-	   Set-NetAdapterChecksumOffload -Name "*" -IpIPv4Enabled RxTxEnabled -TcpIpv4Enabled RxTxEnabled -UdpIpv4Enabled RxTxEnabled -ErrorAction SilentlyContinue
-       $ErrorActionPreference = $errpref #restore previous preference
-       if ((Get-CimInstance -ClassName Win32_ComputerSystem).PCSystemType -ne 2)
-{
-    $adapters = Get-NetAdapter -Physical | Get-NetAdapterPowerManagement | Where-Object -FilterScript {$_.AllowComputerToTurnOffDevice -ne "Unsupported"}
-    foreach ($adapter in $adapters)
-    {
-        $adapter.AllowComputerToTurnOffDevice = "Disabled"
-        $adapter | Set-NetAdapterPowerManagement
-    }
-}
-       Start-Sleep -s 5
-}
+     Write-Output "Optimizing Network and applying Tweaks for ultimate low latency!..."
+     $errpref = $ErrorActionPreference
+     $ErrorActionPreference = "silentlycontinue"
 
+     # ==========================================
+     # 1. TCP/IP レジストリ最適化（低遅延・ラグ防止）
+     # ==========================================
+     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -ErrorAction SilentlyContinue | Out-Null
+     New-Item -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -ErrorAction SilentlyContinue | Out-Null
+     New-Item -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -ErrorAction SilentlyContinue | Out-Null
+
+     # Nagleアルゴリズムの無効化（ゲームデータの即時送信）
+     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\MSMQ\Parameters" -Name "TCPNoDelay" -Type DWord -Value 1
+
+     # 帯域幅制限の解除とQoS最適化
+     Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Psched" -Name "NonBestEffortlimit" -Type DWord -Value 0
+     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\QoS" -Name "Do not use NLA" -Type String -Value "1"
+
+     # ポート枯渇防止とタイムアウト短縮
+     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "MaxUserPort" -Type DWord -Value 65534
+     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "TcpTimedWaitDelay" -Type DWord -Value 30
+     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "DefaultTTL" -Type DWord -Value 64
+
+     # DNSキャッシュとRSS CPU割り当て（上限解放：4コア以上をネットワークにフル投入）
+     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters" -Name "EnableAutoDoh" -Type DWord -Value 2
+     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters" -Name "MaxNumRssCpus" -Type DWord -Value 4
+
+     # ==========================================
+     # 2. Windows ネットワークスタック設定
+     # ==========================================
+     # 1Gbpsやそれ以上の帯域を限界まで引き出すため正常化
+     Set-NetTCPSetting -SettingName Internet -AutoTuningLevelLocal normal | Out-Null
+
+     # 低遅延プロバイダー (CTCP) の適用
+     Set-NetTCPSetting -SettingName internet -CongestionProvider ctcp | Out-Null
+
+     # パケットの細切れ送信を徹底するため、まとめる機能（RSC / LSO）を完全無効化
+     Set-NetOffloadGlobalSetting -ReceiveSegmentCoalescing disabled | Out-Null
+     Disable-NetAdapterLso -Name * | Out-Null
+
+     # マルチコアをフルに活用するRSSを有効化
+     Set-NetOffloadGlobalSetting -ReceiveSideScaling enabled | Out-Null
+     Set-NetTCPSetting -SettingName internet -ScalingHeuristics disabled | Out-Null
+
+     # その他のTCP/IP微調整（再送要求の最適化）
+     Set-NetTCPSetting -SettingName internet -EcnCapability disabled | Out-Null
+     Set-NetTCPSetting -SettingName internet -Timestamps disabled | Out-Null
+     Set-NetTCPSetting -SettingName internet -MaxSynRetransmissions 2 | Out-Null
+     Set-NetTCPSetting -SettingName internet -NonSackRttResiliency disabled | Out-Null
+     Set-NetTCPSetting -SettingName internet -InitialRto 2000 | Out-Null
+     Set-NetTCPSetting -SettingName internet -MinRto 300 | Out-Null
+
+     # レガシーなオフロード機能（遅延の元）をグローバルで完全に切る
+     Set-NetOffloadGlobalSetting -Chimney disabled | Out-Null
+     Set-NetOffloadGlobalSetting -TaskOffload enabled | Out-Null
+     netsh int tcp set global netdma=disabled | Out-Null
+
+     # ==========================================
+     # 3. LANカード（NIC）詳細設定の適用
+     # ==========================================
+     Enable-NetAdapterChecksumOffload -Name * | Out-Null
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "IPv4 Checksum Offload" -DisplayValue "Rx & Tx Enabled" -ErrorAction SilentlyContinue
+
+     # パケット詰まり（ラグスパイク）を防ぐためフロー制御を完全無効化
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Flow Control" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Flow Control" -DisplayValue "Rx & Tx Disabled" -ErrorAction SilentlyContinue
+
+     # RSSキュー数を4に解放（良いPCなら爆速、N100でも動作自体は可能）
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Maximum Number of RSS Queues" -DisplayValue "4 Queues" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Receive Side Scaling" -DisplayValue "Enabled" -ErrorAction SilentlyContinue
+
+     # 徹底的な省電力機能の無効化（常時フルパフォーマンス維持）
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy-Efficient Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy Efficient Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Energy Efficient Ethernet" -DisplayValue "Off" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Ultra Low Power Mode" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "System Idle Power Saver" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Green Ethernet" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Power Saving Mode" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Idle Power Saving" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Reduce Speed On Power Down" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "EEE" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Advanced EEE" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Gigabit Lite" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+
+     # その他のオフロード・遅延要素の無効化
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "ARP Offload" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "NS Offload" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Jumbo Frame" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Log Link State Event" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+
+     # パケット処理の遅延防止
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Interrupt Moderation" -DisplayValue "Disabled" -ErrorAction SilentlyContinue
+     Set-NetAdapterAdvancedProperty -Name * -DisplayName "Interrupt Moderation Rate" -DisplayValue "Off" -ErrorAction SilentlyContinue
+
+
+     # ==========================================
+     # 4. OSによるLANカードの電源オフを禁止
+     # ==========================================
+     $ErrorActionPreference = $errpref
+     if ((Get-CimInstance -ClassName Win32_ComputerSystem).PCSystemType -ne 2) {
+         $adapters = Get-NetAdapter -Physical | Get-NetAdapterPowerManagement | Where-Object -FilterScript {$_.AllowComputerToTurnOffDevice -ne "Unsupported"}
+         foreach ($adapter in $adapters) {
+             $adapter.AllowComputerToTurnOffDevice = "Disabled"
+             $adapter | Set-NetAdapterPowerManagement
+         }
+     }
+     Start-Sleep -s 5
+}
 # Disable Nagle's Algorithm
 Function DisableNagle {
-$errpref = $ErrorActionPreference #save actual preference
-$ErrorActionPreference = "silentlycontinue"
-$NetworkIDS = @(
-(Get-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\*").PSChildName
-)
-    foreach ($NetworkID in $NetworkIDS) {
-	Write-Output "Disabling Nagles Algorithm..."
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TcpAckFrequency" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$NetworkID" -Name "TCPNoDelay" -Type DWord -Value 1
-}
-$ErrorActionPreference = $errpref #restore previous preference
+     Write-Output "Disabling Nagle's Algorithm for all active interfaces..."
+     $errpref = $ErrorActionPreference #save actual preference
+     $ErrorActionPreference = "silentlycontinue"
+
+     # レジストリからすべてのネットワークインターフェースIDを確実に取得
+     $InterfacesPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces"
+     $NetworkIDS = Get-ChildItem -Path $InterfacesPath | Select-Object -ExpandProperty PSChildName
+
+     foreach ($NetworkID in $NetworkIDS) {
+         $SubPath = "$InterfacesPath\$NetworkID"
+
+         # ゲームの応答速度を最速にする2大レジストリを設定
+         Set-ItemProperty -Path $SubPath -Name "TcpAckFrequency" -Type DWord -Value 1
+         Set-ItemProperty -Path $SubPath -Name "TCPNoDelay" -Type DWord -Value 1
+     }
+
+     $ErrorActionPreference = $errpref #restore previous preference
 }
 
 #setting network adabter optimal rss
